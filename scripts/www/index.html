@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>蜂鸟众包模拟器｜教学版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            max-width: 100%;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        /* ========== 底部导航 ========== */
+        .bottom-tab{
+            position:fixed;
+            bottom:0;
+            width:100%;
+            display:flex;
+            background:#fff;
+            border-top:1px solid #ddd;
+            z-index:100;
+        }
+        .bottom-tab-item{
+            flex:1;text-align:center;padding:12px 4px;cursor:pointer;font-size:14px;color:#666;
+        }
+        .bottom-tab-item.active{
+            color:#ff6600;
+            font-weight:bold;
+        }
+        /* ========== 首页顶部上线区域 ========== */
+        .home-top{
+            background:#fff;
+            padding:20px 16px;
+            border-bottom:1px solid #eee;
+        }
+        .online-row{
+            display:flex;justify-content:space-between;align-items:center;
+        }
+        .online-status{
+            display:flex;align-items:center;gap:10px;
+            font-size:16px;
+        }
+        .dot{
+            width:14px;height:14px;border-radius:50%;background:#999;
+        }
+        .dot.on{
+            background:#00c853;
+        }
+        #onlineBtn{
+            padding:10px 22px;border:none;border-radius:28px;background:#ff6600;color:white;font-size:16px;cursor:pointer;
+        }
+        .hall-title{
+            padding:14px 16px;background:#fafafa;border-bottom:1px solid #eee;font-size:17px;font-weight:bold;
+        }
+        /* 订单卡片 */
+        .order-card{
+            border:1px solid #eee;border-radius:10px;padding:16px;margin:14px;background:white;
+        }
+        .order-top{
+            display:flex;justify-content:space-between;margin-bottom:10px;
+        }
+        .fee{
+            color:#ff6600;font-size:21px;font-weight:bold;
+        }
+        .time{
+            color:#f44336;font-size:15px;
+        }
+        .addr-row{
+            font-size:15px;color:#444;margin:8px 0;
+            line-height:1.4;
+        }
+        .tip{
+            font-size:14px;color:#888;margin:8px 0;
+        }
+        .order-btn-area{
+            margin-top:16px;text-align:right;
+        }
+        button{
+            padding:12px 22px;border:none;border-radius:8px;cursor:pointer;font-size:16px;
+        }
+        .btn-orange{
+            background:#ff6600;color:white;
+        }
+        .btn-green{
+            background:#00c853;color:white;
+        }
+        .empty-tip{
+            text-align:center;padding:80px 20px;color:#999;font-size:16px;
+        }
+        /* ========== 页面切换 ========== */
+        .page{
+            display:none;
+        }
+        .page.active{
+            display:block;
+        }
+        /* ========== 个人中心 ========== */
+        .profile-header{
+            background:#007bff;
+            color:white;
+            padding:30px 18px;
+        }
+        .profile-top-row{
+            display:flex;align-items:center;gap:16px;justify-content:space-between;
+        }
+        .avatar{
+            width:70px;height:70px;border-radius:50%;background:white;color:#007bff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:24px;
+        }
+        .rider-name{
+            font-size:20px;font-weight:bold;
+        }
+        .rider-id{
+            font-size:15px;opacity:0.9;margin-top:6px;
+        }
+        .setting-icon{
+            font-size:26px;cursor:pointer;
+        }
+        .rank-text{
+            margin-top:16px;font-size:16px;
+        }
+        /* 个人中心三栏统计 */
+        .profile-stat-row{
+            display:grid;
+            grid-template-columns:1fr 1fr 1fr;
+            background:#007bff;color:white;text-align:center;padding:20px 0;
+        }
+        .stat-num{
+            font-size:26px;font-weight:bold;
+        }
+        .stat-label{
+            font-size:14px;opacity:0.9;
+            margin-top:4px;
+        }
+        /* 四图标区域：罚单、评价、抽检、战绩 */
+        .four-icon-row{
+            display:grid;
+            grid-template-columns:1fr 1fr 1fr 1fr;
+            padding:24px 10px;background:white;
+        }
+        .four-item{
+            text-align:center;
+        }
+        .four-item .icon-box{
+            width:48px;height:48px;margin:0 auto 8px;border-radius:10px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;color:#007bff;font-weight:bold;font-size:18px;
+        }
+        /* 跑单活动一行三格 */
+        .three-icon-row{
+            display:grid;
+            grid-template-columns:1fr 1fr 1fr;
+            padding:20px 10px;background:white;margin-top:10px;
+        }
+        .three-item{
+            text-align:center;
+        }
+        .three-item .icon-box{
+            width:48px;height:48px;margin:0 auto 8px;border-radius:10px;background:#fff2e6;display:flex;align-items:center;justify-content:center;color:#ff6600;font-weight:bold;font-size:18px;
+        }
+        /* 管理工具列表 */
+        .tool-title{
+            padding:14px 18px;color:#666;font-size:15px;background:#f5f5f5;margin-top:10px;
+        }
+        .tool-row{
+            display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eee;background:white;font-size:16px;
+        }
+        .history-item{
+            padding:16px 18px;border-bottom:1px solid #eee;
+            background:#fff;
+            margin:8px;
+            border-radius:8px;
+        }
+        .history-item .title{
+            font-size:16px;
+        }
+        .history-item .money{
+            color:#ff6600;float:right;font-weight:bold;font-size:17px;
+        }
+        .desc{
+            font-size:14px;color:#777;margin-top:6px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 页面1：首页 / 待抢单 ========== -->
+<div class="page active" id="pageHome">
+    <div class="home-top">
+        <div class="online-row">
+            <div class="online-status">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">已下线</span>
+            </div>
+            <button id="onlineBtn">上线接单</button>
+        </div>
+    </div>
+    <div class="hall-title">待抢订单大厅</div>
+    <div id="orderList"></div>
+    <div class="empty-tip" id="hallEmpty">上线后才可以查看可抢订单</div>
+</div>
+
+<!-- ========== 页面2：我的订单（进行中） ========== -->
+<div class="page" id="pageMyOrder">
+    <div id="doingOrderBox"></div>
+    <div class="empty-tip" id="doingEmpty">暂无正在配送的订单</div>
+</div>
+
+<!-- ========== 页面3：历史订单 ========== -->
+<div class="page" id="pageHistory">
+    <div id="historyBox"></div>
+    <div class="empty-tip" id="historyEmpty">暂无已完成订单</div>
+</div>
+
+<!-- ========== 页面4：我的（个人中心） ========== -->
+<div class="page" id="pageProfile">
+    <div class="profile-header">
+        <div class="profile-top-row">
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div class="avatar">骑</div>
+                <div>
+                    <div class="rider-name">骑手_0826</div>
+                    <div class="rider-id">骑手ID：26008261</div>
+                </div>
+            </div>
+            <div class="setting-icon">⚙</div>
+        </div>
+        <div class="rank-text">当前段位：白银骑手</div>
+    </div>
+    <div class="profile-stat-row">
+        <div>
+            <div class="stat-num" id="profileTodayCount">0</div>
+            <div class="stat-label">今日完成</div>
+        </div>
+        <div>
+            <div class="stat-num" id="profileTodayIncome">0.00</div>
+            <div class="stat-label">今日收入</div>
+        </div>
+        <div>
+            <div class="stat-num">98</div>
+            <div class="stat-label">跑单指数</div>
+        </div>
+    </div>
+    <div class="four-icon-row">
+        <div class="four-item">
+            <div class="icon-box">罚</div>
+            <div>罚单</div>
+        </div>
+        <div class="four-item">
+            <div class="icon-box">评</div>
+            <div>评价</div>
+        </div>
+        <div class="four-item">
+            <div class="icon-box">检</div>
+            <div>抽检</div>
+        </div>
+        <div class="four-item">
+            <div class="icon-box">战</div>
+            <div>战绩</div>
+        </div>
+    </div>
+    <div class="three-icon-row">
+        <div class="three-item">
+            <div class="icon-box">活</div>
+            <div>跑单活动</div>
+        </div>
+        <div class="three-item">
+            <div class="icon-box">邀</div>
+            <div>邀请奖励</div>
+        </div>
+        <div class="three-item">
+            <div class="icon-box">新</div>
+            <div>新人专区</div>
+        </div>
+    </div>
+    <div class="tool-title">管理工具</div>
+    <div class="tool-row">
+        <span>保证金</span>
+        <span>></span>
+    </div>
+    <div class="tool-row">
+        <span>帮助与客服</span>
+        <span>></span>
+    </div>
+    <div class="tool-row">
+        <span>设置</span>
+        <span>></span>
+    </div>
+</div>
+
+<!-- ========== 底部Tab导航 ========== -->
+<div class="bottom-tab">
+    <div class="bottom-tab-item active" data-page="pageHome">首页</div>
+    <div class="bottom-tab-item" data-page="pageMyOrder">我的订单</div>
+    <div class="bottom-tab-item" data-page="pageHistory">历史</div>
+    <div class="bottom-tab-item" data-page="pageProfile">我的</div>
+</div>
+
+
+<script>
+// 全局数据
+let isOnline = false;
+let todayOrderCount = 0;
+let todayIncomeVal = 0;
+let doingOrder = null;
+let historyOrders = [];
+
+// 模拟订单池
+const mockOrderPool = [
+    {id:1,shopName:"老长沙臭豆腐",shopAddr:"岳麓区麓山南路128号",recvAddr:"岳麓区科教新村3栋201",fee:6.5,remainTime:"32分钟",note:"不要辣"},
+    {id:2,shopName:"隆江猪脚饭",shopAddr:"岳麓区阜埠河路76号",recvAddr:"岳麓区天马小区11栋502",fee:8,remainTime:"26分钟",note:"多放酸菜"},
+    {id:3,shopName:"蜜雪冰城",shopAddr:"岳麓区大学城店",recvAddr:"岳麓区德智园宿舍6栋",fee:5.5,remainTime:"20分钟",note:"少冰"},
+    {id:4,shopName:"常德津市牛肉粉",shopAddr:"岳麓区后湖路",recvAddr:"岳麓区橡树湾小区4栋",fee:9,remainTime:"35分钟",note:"米粉多一点"},
+];
+
+// DOM元素
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+const onlineBtn = document.getElementById("onlineBtn");
+const orderListEl = document.getElementById("orderList");
+const hallEmptyEl = document.getElementById("hallEmpty");
+const doingOrderBoxEl = document.getElementById("doingOrderBox");
+const doingEmptyEl = document.getElementById("doingEmpty");
+const historyBoxEl = document.getElementById("historyBox");
+const historyEmptyEl = document.getElementById("historyEmpty");
+const profileTodayCountEl = document.getElementById("profileTodayCount");
+const profileTodayIncomeEl = document.getElementById("profileTodayIncome");
+
+// ✅底部Tab切换
+document.querySelectorAll(".bottom-tab-item").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+        document.querySelectorAll(".bottom-tab-item").forEach(t=>t.classList.remove("active"));
+        document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+        tab.classList.add("active");
+        const pageId = tab.getAttribute("data-page");
+        document.getElementById(pageId).classList.add("active");
+    })
+})
+
+// ✅上线 / 下线
+onlineBtn.addEventListener("click", ()=>{
+    isOnline = !isOnline;
+    if(isOnline){
+        statusDot.classList.add("on");
+        statusText.innerText = "已上线";
+        onlineBtn.innerText = "下线休息";
+        renderOrderHall();
+    }else{
+        statusDot.classList.remove("on");
+        statusText.innerText = "已下线";
+        onlineBtn.innerText = "上线接单";
+        renderOrderHall();
+    }
+})
+
+// ✅渲染订单大厅
+function renderOrderHall(){
+    if(!isOnline){
+        orderListEl.innerHTML = "";
+        hallEmptyEl.style.display = "block";
+        return;
+    }
+    hallEmptyEl.style.display = "none";
+    if(doingOrder){
+        orderListEl.innerHTML = `<div class="empty-tip">你已有配送中的订单，请先完成当前订单</div>`;
+        return;
+    }
+    let html = "";
+    mockOrderPool.forEach(o=>{
+        html += `
+        <div class="order-card">
+            <div class="order-top">
+                <span class="fee">配送费 ¥${o.fee}</span>
+                <span class="time">⏱剩余 ${o.remainTime}</span>
+            </div>
+            <div class="addr-row">🏪商家：${o.shopName}</div>
+            <div class="addr-row">📍商家地址：${o.shopAddr}</div>
+            <div class="addr-row">🏠收货地址：${o.recvAddr}</div>
+            <div class="tip">📝备注：${o.note}</div>
+            <div class="order-btn-area">
+                <button class="btn-orange">立即抢单</button>
+            </div>
+        </div>
+        `
+    })
+    orderListEl.innerHTML = html;
+    // 绑定抢单按钮
+    document.querySelectorAll(".btn-orange").forEach((btn,index)=>{
+        btn.addEventListener("click", ()=>{
+            grabOrder(mockOrderPool[index].id);
+        })
+    })
+}
+
+// ✅抢单
+function grabOrder(orderId){
+    const target = mockOrderPool.find(i=>i.id === orderId);
+    if(!target || doingOrder) return;
+    doingOrder = {...target,state:"TO_SHOP"};
+    renderDoingOrder();
+    renderOrderHall();
+}
+
+// ✅更新个人中心统计
+function updateProfileStat(){
+    profileTodayCountEl.innerText = todayOrderCount;
+    profileTodayIncomeEl.innerText = todayIncomeVal.toFixed(2);
+}
+
+// ✅渲染进行中订单
+function renderDoingOrder(){
+    if(!doingOrder){
+        doingOrderBoxEl.innerHTML = "";
+        doingEmptyEl.style.display = "block";
+        return;
+    }
+    doingEmptyEl.style.display = "none";
+    let stateText,btnText;
+    if(doingOrder.state === "TO_SHOP"){
+        stateText = "🚶前往商家";
+        btnText = "✅确认到达商家";
+    }else{
+        stateText = "🛵配送中（已取餐）";
+        btnText = "✅确认送达顾客";
+    }
+    doingOrderBoxEl.innerHTML = `
+    <div class="order-card">
+        <div style="font-size:18px;font-weight:bold;margin-bottom:10px;color:#ff6600">${stateText}</div>
+        <div class="addr-row">🏪商家：${doingOrder.shopName}</div>
+        <div class="addr-row">📍商家地址：${doingOrder.shopAddr}</div>
+        <div class="addr-row">🏠收货地址：${doingOrder.recvAddr}</div>
+        <div class="tip">📝备注：${doingOrder.note}</div>
+        <div class="order-btn-area">
+            <button class="btn-green">${btnText}</button>
+        </div>
+    </div>
+    `
+    // 绑定绿色操作按钮
+    document.querySelector(".btn-green").addEventListener("click", ()=>{
+        if(doingOrder.state === "TO_SHOP"){
+            arriveShop();
+        }else{
+            finishOrder();
+        }
+    })
+}
+
+// ✅到达商家
+function arriveShop(){
+    doingOrder.state = "TO_USER";
+    renderDoingOrder();
+}
+
+// ✅完成订单
+function finishOrder(){
+    todayOrderCount +=1;
+    todayIncomeVal += doingOrder.fee;
+    historyOrders.push({...doingOrder});
+    doingOrder = null;
+    updateProfileStat();
+    renderDoingOrder();
+    renderOrderHall();
+    renderHistory();
+}
+
+// ✅渲染历史订单
+function renderHistory(){
+    if(historyOrders.length ===0){
+        historyBoxEl.innerHTML = "";
+        historyEmptyEl.style.display = "block";
+        return;
+    }
+    historyEmptyEl.style.display = "none";
+    let html = "";
+    historyOrders.reverse().forEach(h=>{
+        html += `
+        <div class="history-item">
+            <span class="money">+¥${h.fee}</span>
+            <div class="title">${h.shopName}</div>
+            <div class="desc">配送至：${h.recvAddr}</div>
+        </div>
+        `
+    })
+    historyBoxEl.innerHTML = html;
+}
+
+// ✅初始化
+renderOrderHall();
+renderDoingOrder();
+renderHistory();
+updateProfileStat();
+</script>
+</body>
+</html>
